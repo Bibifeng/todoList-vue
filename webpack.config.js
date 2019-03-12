@@ -5,7 +5,7 @@ module.exports = {
   entry: './src/main.js',
   output: {
     path: path.resolve(__dirname, './docs'),
-    publicPath: '/docs/',
+    publicPath: '/todoList-vue/docs/',
     filename: 'index.js'
   },
   module: {
