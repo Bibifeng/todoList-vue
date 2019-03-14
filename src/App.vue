@@ -1,27 +1,37 @@
 <template>
   <div id="app">
-    <h1>{{ msg }}</h1>
-    <input type="text" v-model="doWhat" v-on:keydown="add($event)" placeholder="输入计划" class="textInput">
 
-    <h3>未完成</h3>
-    <ul>
-      <li v-for="(item,key) in todoList " v-if="!item.isOver">
-        <input type="checkbox" v-model="item.isOver" v-on:change="saveChange()">
-        {{ item.things }}
-        <button @click="del(key)">删除</button>
-      </li>
-    </ul>
+    <div class="todo-title">This is your own todo-list</div>
 
-    <h3>已结束</h3>
-    <ul>
-      <li v-for="(item,key) in todoList " v-if="item.isOver" :class="{'overPlease':item.isOver}">
-        <input type="checkbox" v-model="item.isOver" @change="saveChange()">
-        {{ item.things }}
-         <button @click="del(key)">删除</button>
-      </li>
-    </ul>
-    <hr>
-    <button @click="delLocalStorage()">清除本地存储</button>
+    <input type="text" v-model="doWhat" v-on:keydown="add($event)" autocomplete="off" placeholder="输入计划，按回车添加" class="textInput">
+
+    <div class="list-area">
+      <div class="event-status">未完成：</div>
+      <ul>
+        <li v-for="(item,key) in todoList " v-if="!item.isOver" class="list-style">
+          <input type="checkbox" v-model="item.isOver" v-on:change="saveChange()">
+          {{ item.things }}
+        <!--<button @click="del(key)" class="btn">删除</button>-->
+          <span @click="del(key)">
+            <svg class="icon"><use xlink:href="#i-del"></use></svg>
+          </span>
+        </li>
+      </ul>
+
+      <div class="event-status">已结束：</div>
+      <ul>
+        <li v-for="(item,key) in todoList " v-if="item.isOver" :class="{'overPlease':item.isOver}" class="list-style">
+<input type="checkbox" v-model="item.isOver" @change="saveChange()">
+          {{ item.things }}
+            <!--<button @click="del(key)" class="btn">删除</button>-->
+          <span @click="del(key)">
+            <svg class="icon"><use xlink:href="#i-del"></use></svg>
+          </span>
+        </li>
+      </ul>
+    </div>
+
+    <button @click="delLocalStorage()" class="btn clean-btn">清除本地存储</button>
   </div>
 </template>
 
@@ -81,7 +91,8 @@ export default {
     delLocalStorage:function () {   //清除本地存储
       storage.remove('list');
       if(!storage.get('list')){
-          alert('已清除,请刷新页面');
+          alert('本地数据已清除');
+        location.reload();
       }else{
           alert('清除本地存储失败，请重试');
       }
@@ -98,24 +109,171 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+
+  @keyframes inputStyle{
+    0%{
+      border-bottom-color: #bdefea;
+    }
+    50%{
+      border-bottom-color: #8789f6;
+    }
+    100%{
+      border-bottom-color: #bdefea;
+    }
+  }
+
+  #app{
+    position: fixed;
+    width: 70vw;
+    height: 70vh;
+    background-color: white;
+    /*margin:0 auto;*/
+    left: 50%;
+    top:50%;
+    margin-top: -35vh;
+    margin-left: -35vw;
+    border-radius: 20px;
+    box-shadow: 5px 5px 10px #9a9a9a;
+
+    .todo-title{
+      padding: 15px 0;
+      text-align: center;
+      font-size: 1.5em;
+      text-shadow: 2px 2px 5px #9a9a9a;
+      color: #606060;
+    }
+
+  }
+
   .overPlease{
     text-decoration: line-through;
   }
 
   .textInput{
-    width: 400px;
-    height: 20px;
+    width: 60%;
+    height: 28px;
     outline:none;
-    border: solid 1px #b4b4b4;
-    border-radius: 4px;
+    border: none;
+    border-bottom: 2px solid #bdefea;
     padding-left: 2px;
+    margin: 0 auto;
+    display: block;
+    margin: 0 auto;
+    font-size: 1em;
+    color: #666;
+    font-family: 微软雅黑;
+
+    &:focus{
+      border-bottom-color: #8789f6;
+      animation: inputStyle 3s infinite linear;
+    }
+
+    &::-webkit-input-placeholder, textarea::-webkit-input-placeholder {
+      /* WebKit browsers */
+      color: #a7a7a7;
+    }
+    &:-moz-placeholder, textarea:-moz-placeholder {
+      /* Mozilla Firefox 4 to 18 */
+      color: #a7a7a7;
+    }
+    &::-moz-placeholder, textarea::-moz-placeholder {
+      /* Mozilla Firefox 19+ */
+      color: #a7a7a7;
+    }
+    &:-ms-input-placeholder, textarea:-ms-input-placeholder {
+      /* Internet Explorer 10+ */
+      color: #a7a7a7;
+    }
+
   }
-  .textInput:focus{
-    border: solid 1px #05aaf4;
-    -webkit-box-shadow:inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
-    box-shadow:inset 0px 1px 1px rgba(0,0,0,0.075), 0px 0px 8px rgba(102,175,233,0.6);
+
+  .list-area{
+    width: 60%;
+    height: 70%;
+    margin: 16px auto 0 auto;
+    overflow-y:auto;
+    border-bottom: 1px solid #e6edef;
+    /* 滚动槽 */
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    &::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.06);
+      -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,0.08);
+    }
+    /* 滚动条滑块 */
+    &::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.12);
+      -webkit-box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+    }
+
+
+    .event-status{
+      font-size: 1.2em;
+      text-shadow: 2px 2px 6px #a7a7a7;
+      color: #666;
+    }
   }
+
+  .list-style{
+    padding: 4px 0;
+    margin-bottom: 3px;
+    margin-right: 4px;
+    vertical-align: middle;
+    &:hover{
+      background-color: #f6f6f6;
+    }
+    & span{
+      float: right;
+      cursor: pointer;
+    }
+  }
+
+
+  /*按钮样式*/
+  .btn {
+    display: inline-flex;
+    font-size: 12px;
+    height: 27px;
+    padding: 0 1em;
+    font: inherit;
+    border-radius: 6px;
+    border: 1px solid #999;
+    background: white;
+    cursor: pointer;
+    justify-content: center;
+    /*子元素在父元素垂直居中*/
+    align-items: center;
+    /*防止多个button水平放置时会上下参差不齐*/
+    vertical-align: middle;
+
+    &:hover {
+      border-color: #666;
+    }
+    &:active {
+      background-color: #eee;
+    }
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .clean-btn{
+    position: fixed;
+    left: 30px;
+    bottom: 50px;
+  }
+
+  /*icon*/
+  .icon{
+    width: 1em;
+    height: 1em;
+    &:hover{
+      cursor: pointer;
+    }
+  }
+
 
 </style>
 
